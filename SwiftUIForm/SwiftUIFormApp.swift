@@ -13,7 +13,7 @@ struct SwiftUIFormApp: App {
     var alamacenInicial = SettingStore()
     var body: some Scene {
         WindowGroup {
-            ContentView(almacen: alamacenInicial)
+            ContentView().environmentObject(alamacenInicial)
         }
     }
 }

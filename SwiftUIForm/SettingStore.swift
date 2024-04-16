@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 enum DisplayOrderType: Int, CaseIterable {
     case alphabetical = 0
@@ -28,6 +29,13 @@ enum DisplayOrderType: Int, CaseIterable {
         case .checkInFirst: return "Show Check-in First"
         }
     }
+    func predicate() -> ((Restaurant, Restaurant) -> Bool) {
+        switch self {
+            case .alphabetical: return { $0.name < $1.name }
+            case .favoriteFirst: return { $0.isFavorite && !$1.isFavorite }
+            case .checkInFirst: return { $0.isCheckIn && !$1.isCheckIn }
+        }
+    }
 }
 
 final class SettingStore: ObservableObject {
@@ -40,18 +48,18 @@ final class SettingStore: ObservableObject {
         ])
     }
     
-    var showCheckInOnly: Bool = UserDefaults.standard.bool(forKey: "view.preferences.showCheckInOnly") {
+    @Published var showCheckInOnly: Bool = UserDefaults.standard.bool(forKey: "view.preferences.showCheckInOnly") {
         didSet {
             UserDefaults.standard.set(showCheckInOnly, forKey: "view.preferences.showCheckInOnly")
         }
     }
     
-    var displayOrder: DisplayOrderType = DisplayOrderType(type:     UserDefaults.standard.integer(forKey:"view.preferences.displayOrder")) {
+    @Published var displayOrder: DisplayOrderType = DisplayOrderType(type:     UserDefaults.standard.integer(forKey:"view.preferences.displayOrder")) {
         didSet {
             UserDefaults.standard.set(displayOrder.rawValue, forKey: "view.preferences.displayOrder")
         }
     }
-    var maxPriceLevel: Int = UserDefaults.standard.integer(forKey: "view.preferences.maxPriceLevel") {
+    @Published var maxPriceLevel: Int = UserDefaults.standard.integer(forKey: "view.preferences.maxPriceLevel") {
         didSet {
             UserDefaults.standard.set(maxPriceLevel, forKey: "view.preferences.maxPriceLevel")
         }

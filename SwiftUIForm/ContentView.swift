@@ -36,12 +36,15 @@ struct ContentView: View {
 
     @State private var selectedRestaurant: Restaurant?
     @State private var showSettings: Bool = false
-    var almacen: SettingStore
+    @EnvironmentObject var almacen: SettingStore
     
     var body: some View {
         NavigationView {
             List {
-                ForEach(restaurants) { restaurant in
+                ForEach(restaurants.sorted(by: self.almacen.displayOrder.predicate())){ restaurant in
+
+                //ForEach(restaurants)
+                    if self.shouldShowItem(restaurant: restaurant){
                     BasicImageRow(restaurant: restaurant)
                         .contextMenu {
                             
@@ -79,12 +82,13 @@ struct ContentView: View {
                         .onTapGesture {
                             self.selectedRestaurant = restaurant
                         }
+                    }
                 }
                 .onDelete { (indexSet) in
                     self.restaurants.remove(atOffsets: indexSet)
                 }
             }
-            
+        
             .navigationBarTitle("Restaurant")
             .navigationBarItems(trailing:
 
@@ -96,12 +100,15 @@ struct ContentView: View {
                 })
             )
             .sheet(isPresented: $showSettings) {
-                SettingView(settingStore: self.almacen)
+                SettingView().environmentObject(self.almacen)
             }
             
         }
         .navigationViewStyle(StackNavigationViewStyle())
        
+    }
+    private func shouldShowItem(restaurant: Restaurant) -> Bool {
+    return (!self.almacen.showCheckInOnly || restaurant.isCheckIn) && (restaurant.priceLevel <= self.almacen.maxPriceLevel)
     }
     
     private func delete(item restaurant: Restaurant) {
@@ -125,7 +132,7 @@ struct ContentView: View {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView(almacen: SettingStore())
+        ContentView().environmentObject(SettingStore())
     }
 }
 

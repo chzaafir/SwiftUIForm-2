@@ -10,7 +10,7 @@ import SwiftUI
 struct SettingView: View {
     
     @Environment(\.presentationMode) var presentationMode
-    var settingStore: SettingStore
+    @EnvironmentObject var settingStore: SettingStore
     
     //private var displayOrders = [ "Alphabetical", "Show Favorite First", "Show Check-in First"]
     
@@ -25,9 +25,9 @@ struct SettingView: View {
             Form {
                 Section(header: Text("SORT PREFERENCE")) {
                     Picker(selection: $selectedOrder, label: Text("Display order")) {
-                        ForEach(DisplayOrderType.allCases, id: \.self) {
-                            orderType in
-                            Text(orderType.text)
+                                                ForEach(DisplayOrderType.allCases, id: \.self) {
+                                                    orderType in
+                                                    Text(orderType.text)
                         }
                     }
                 }
@@ -54,11 +54,7 @@ struct SettingView: View {
                     }
                 }
             }
-            .onAppear {
-                self.selectedOrder = self.settingStore.displayOrder
-                self.showCheckInOnly = self.settingStore.showCheckInOnly
-                self.maxPriceLevel = self.settingStore.maxPriceLevel
-            }
+            
             
             .navigationBarTitle("Settings")
             
@@ -83,14 +79,17 @@ struct SettingView: View {
                         .foregroundColor(.blue)
                 })
             )
-            
         }
-        
+        .onAppear {
+            self.selectedOrder = self.settingStore.displayOrder
+            self.showCheckInOnly = self.settingStore.showCheckInOnly
+            self.maxPriceLevel = self.settingStore.maxPriceLevel
+        }
     }
 }
 
 struct SettingView_Previews: PreviewProvider {
     static var previews: some View {
-        SettingView(settingStore: SettingStore())
+        SettingView().environmentObject(SettingStore())
     }
 }
